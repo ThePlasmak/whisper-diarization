@@ -55,7 +55,7 @@ parser.add_argument(
     "-l", "--language",
     dest="language",
     default="",
-    help="Enter the language.",
+    help="Enter the language (in an ISO 639-1 Code).",
 )
 parser.add_argument(
     "-bs", "--beam-size",
@@ -112,9 +112,10 @@ for segment in segments:
 del whisper_model
 torch.cuda.empty_cache()
 
-if info.language in wav2vec2_langs:
+language_to_check = args.language if args.language else info.language
+if language_to_check in wav2vec2_langs:
     alignment_model, metadata = whisperx.load_align_model(
-        language_code=info.language, device=args.device
+        language_code=language_to_check, device=args.device
     )
     result_aligned = whisperx.align(
         whisper_results, alignment_model, metadata, vocal_target, args.device
@@ -187,7 +188,7 @@ if info.language in punct_model_langs:
     wsm = get_realigned_ws_mapping_with_punctuation(wsm)
 else:
     logging.warning(
-        f'Punctuation restoration is not available for {info.language} language.'
+        f'Punctuation restoration is not available for {language_to_check} language.'
     )
 
 ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
