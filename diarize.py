@@ -12,6 +12,9 @@ import re
 import logging
 import time
 
+# Example command:
+# python3 diarize.py -a "test.ogg" -l en
+
 start_time = time.time()
 
 mtypes = {'cpu': 'int8', 'cuda': 'float16'}
@@ -30,9 +33,9 @@ parser.add_argument(
     "This helps with long files that don't contain a lot of music.",
 )
 parser.add_argument(
-    "--whisper-model",
+    "-m", "--whisper-model",
     dest="model_name",
-    default="tiny.en", # Select from this list: tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large
+    default="large-v2", # Select from this list: tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large
     help="Name of the Whisper model to use.",
 )
 parser.add_argument(
@@ -86,7 +89,7 @@ whisper_model = WhisperModel(
 # whisper_model = WhisperModel(args.model_name, device="cpu", compute_type="int8")
 
 transcribe_args = {
-    "beam_size": 1,
+    "beam_size": 5,
     "word_timestamps": True
 }
 if args.language:
