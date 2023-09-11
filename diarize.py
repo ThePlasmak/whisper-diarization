@@ -13,7 +13,7 @@ import logging
 import time
 
 # Example command:
-# python3 diarize.py -a "Animal Communication Ezekiel.m4a" -l en -bs 4
+# python3 diarize.py -a "Animal Communication Ezekiel.m4a" -l en
 
 start_time = time.time()
 
@@ -62,7 +62,7 @@ parser.add_argument(
     dest="beam_size",
     type=int,
     default=1,
-    help="Enter the desired beam size. The higher the beam size, the more accurate the transcription, but the process is slower and is more likely to run out of memory.",
+    help="Enter the desired beam size. The higher the beam size, the more accurate the transcription, but the process is slower and more likely to run out of memory.",
 )
 
 args = parser.parse_args()
@@ -200,11 +200,9 @@ with open(f"{args.audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
 
 cleanup(temp_path)
 
-# Calculate the time taken in seconds
-time_taken_seconds = time.time() - start_time
-
-# Format the time taken to three decimal places
-time_taken_formatted = "{:.3f}".format(time_taken_seconds)
+# Time calculation
+time_taken_seconds = time.time() - start_time # Calculate the time taken in seconds
+time_taken_formatted = "{:.3f}".format(time_taken_seconds) # Format the time taken to three decimal places
 
 # Calculate hours, minutes, and seconds
 hours = int(time_taken_seconds // 3600)
