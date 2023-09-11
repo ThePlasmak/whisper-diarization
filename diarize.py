@@ -13,7 +13,7 @@ import logging
 import time
 
 # Example command:
-# python3 diarize.py -a "Animal Communication Ezekiel.m4a" -l en -bs 4
+# python3 diarize.py -a "Animal Communication Ezekiel.m4a" -l en
 
 start_time = time.time()
 
@@ -47,6 +47,7 @@ parser.add_argument(
 parser.add_argument(
     "-s","--speakers",
     dest="num_speakers",
+    type=int,
     default="",
     help="Enter the number of speakers.",
 )
@@ -61,7 +62,7 @@ parser.add_argument(
     dest="beam_size",
     type=int,
     default=5,
-    help="Enter the desired beam size. The higher the beam size, the more accurate but slower the transcription. High beam sizes can lead to running out of memory.",
+    help="Enter the desired beam size. The higher the beam size, the more accurate the transcription, but the process is slower and is more likely to run out of memory.",
 )
 
 args = parser.parse_args()
