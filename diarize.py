@@ -13,7 +13,7 @@ import logging
 import time
 
 # Example command:
-# python3 diarize.py -a "test.ogg" -l en
+# python3 diarize.py -a "Animal Communication Ezekiel.m4a" -l en -bs 4
 
 start_time = time.time()
 
@@ -42,7 +42,7 @@ parser.add_argument(
     "--device",
     dest="device",
     default="cuda" if torch.cuda.is_available() else "cpu",
-    help="If you have a GPU use 'cuda', otherwise 'cpu'.",
+    help="If you have a GPU use 'cuda', otherwise use 'cpu'.",
 )
 parser.add_argument(
     "-s","--speakers",
@@ -55,6 +55,12 @@ parser.add_argument(
     dest="language",
     default="",
     help="Enter the language.",
+)
+parser.add_argument(
+    "-bs", "--beam-size",
+    dest="beam_size",
+    default=5,
+    help="Enter the desired beam size.",
 )
 
 args = parser.parse_args()
@@ -89,7 +95,7 @@ whisper_model = WhisperModel(
 # whisper_model = WhisperModel(args.model_name, device="cpu", compute_type="int8")
 
 transcribe_args = {
-    "beam_size": 5,
+    "beam_size": args.beam_size,
     "word_timestamps": True
 }
 if args.language:
