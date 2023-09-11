@@ -1,9 +1,13 @@
 __pycache__/
+*.bashrc
+
 *.srt
 *.txt
+
 *.wav
 *.mp3
-*.mp4
-*.m4a
 *.ogg
 
+*.mp4
+*.m4a
+*.webm
