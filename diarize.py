@@ -45,7 +45,13 @@ parser.add_argument(
     "-s","--speakers",
     dest="num_speakers",
     default="",
-    help="Enter the number of speakers if you know it.",
+    help="Enter the number of speakers.",
+)
+parser.add_argument(
+    "-l", "--language",
+    dest="language",
+    default="",
+    help="Enter the language.",
 )
 
 args = parser.parse_args()
@@ -79,9 +85,15 @@ whisper_model = WhisperModel(
 # or run on CPU with INT8
 # whisper_model = WhisperModel(args.model_name, device="cpu", compute_type="int8")
 
-segments, info = whisper_model.transcribe(
-    vocal_target, beam_size=1, word_timestamps=True
-)
+transcribe_args = {
+    "beam_size": 1,
+    "word_timestamps": True
+}
+if args.language:
+    transcribe_args["language"] = args.language
+
+segments, info = whisper_model.transcribe(vocal_target, **transcribe_args)
+
 whisper_results = []
 for segment in segments:
     whisper_results.append(segment._asdict())
