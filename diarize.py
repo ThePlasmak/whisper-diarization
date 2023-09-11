@@ -29,30 +29,26 @@ parser.add_argument(
     help="Disables source separation."
     "This helps with long files that don't contain a lot of music.",
 )
-
 parser.add_argument(
     "--whisper-model",
     dest="model_name",
     default="tiny.en", # Select from this list: tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large
-    help="Name of the Whisper model to use",
+    help="Name of the Whisper model to use.",
 )
-
 parser.add_argument(
     "--device",
     dest="device",
     default="cuda" if torch.cuda.is_available() else "cpu",
-    help="If you have a GPU use 'cuda', otherwise 'cpu'",
+    help="If you have a GPU use 'cuda', otherwise 'cpu'.",
 )
-
 parser.add_argument(
-    "--num-speakers",
+    "-s","--speakers",
     dest="num_speakers",
     default="",
     help="Enter the number of speakers if you know it.",
 )
 
 args = parser.parse_args()
-
 
 if args.stemming:
     # Isolate vocals from the rest of the audio
