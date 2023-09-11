@@ -10,6 +10,9 @@ from nemo.collections.asr.models.msdd_models import NeuralDiarizer
 from deepmultilingualpunctuation import PunctuationModel
 import re
 import logging
+import time
+
+start_time = time.time()
 
 mtypes = {'cpu': 'int8', 'cuda': 'float16'}
 
@@ -30,18 +33,26 @@ parser.add_argument(
 parser.add_argument(
     "--whisper-model",
     dest="model_name",
-    default="medium.en",
-    help="name of the Whisper model to use",
+    default="tiny.en", # Select from this list: tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large
+    help="Name of the Whisper model to use",
 )
 
 parser.add_argument(
     "--device",
     dest="device",
     default="cuda" if torch.cuda.is_available() else "cpu",
-    help="if you have a GPU use 'cuda', otherwise 'cpu'",
+    help="If you have a GPU use 'cuda', otherwise 'cpu'",
+)
+
+parser.add_argument(
+    "--num-speakers",
+    dest="num_speakers",
+    default="",
+    help="Enter the number of speakers if you know it.",
 )
 
 args = parser.parse_args()
+
 
 if args.stemming:
     # Isolate vocals from the rest of the audio
@@ -68,9 +79,9 @@ whisper_model = WhisperModel(
     args.model_name, device=args.device, compute_type=mtypes[args.device])
 
 # or run on GPU with INT8
-# model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
+# whisper_model = WhisperModel(args.model_name, device="cuda", compute_type="int8_float16")
 # or run on CPU with INT8
-# model = WhisperModel(model_size, device="cpu", compute_type="int8")
+# whisper_model = WhisperModel(args.model_name, device="cpu", compute_type="int8")
 
 segments, info = whisper_model.transcribe(
     vocal_target, beam_size=1, word_timestamps=True
@@ -108,7 +119,7 @@ os.makedirs(temp_path, exist_ok=True)
 soundfile.write(os.path.join(temp_path, "mono_file.wav"), signal, sample_rate, "PCM_24")
 
 # Initialize NeMo MSDD diarization model
-msdd_model = NeuralDiarizer(cfg=create_config(temp_path)).to(args.device)
+msdd_model = NeuralDiarizer(cfg=create_config(temp_path, args.num_speakers)).to(args.device)
 msdd_model.diarize()
 
 del msdd_model
@@ -169,3 +180,21 @@ with open(f"{args.audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
     write_srt(ssm, srt)
 
 cleanup(temp_path)
+
+# Calculate the time taken in seconds
+time_taken_seconds = time.time() - start_time
+
+# Format the time taken to three decimal places
+time_taken_formatted = "{:.3f}".format(time_taken_seconds)
+
+# Calculate hours, minutes, and seconds
+hours = int(time_taken_seconds // 3600)
+minutes = int((time_taken_seconds % 3600) // 60)
+seconds = int(time_taken_seconds % 60)
+
+# Print the time taken in hours, minutes, and seconds format with three decimal places
+print(
+    "Time taken: {} hours, {} minutes, {} seconds".format(
+        hours, minutes, time_taken_formatted
+    )
+)

@@ -42,7 +42,7 @@ wav2vec2_langs = [
 ]
 
 
-def create_config(output_dir):
+def create_config(output_dir, num_speakers):
     DOMAIN_TYPE = "telephonic"  # Can be meeting or telephonic based on domain type of the audio file
     CONFIG_FILE_NAME = f"diar_infer_{DOMAIN_TYPE}.yaml"
     CONFIG_URL = f"https://raw.githubusercontent.com/NVIDIA/NeMo/main/examples/speaker_tasks/diarization/conf/inference/{CONFIG_FILE_NAME}"
@@ -64,6 +64,9 @@ def create_config(output_dir):
         "rttm_filepath": None,
         "uem_filepath": None,
     }
+    if num_speakers is not None:
+        meta["num_speakers"] = num_speakers
+
     with open(os.path.join(data_dir, "input_manifest.json"), "w") as fp:
         json.dump(meta, fp)
         fp.write("\n")
@@ -86,7 +89,10 @@ def create_config(output_dir):
     config.diarizer.oracle_vad = (
         False  # compute VAD provided with model_path to vad config
     )
-    config.diarizer.clustering.parameters.oracle_num_speakers = False
+    if num_speakers:
+        config.diarizer.clustering.parameters.oracle_num_speakers = True
+    else:
+        config.diarizer.clustering.parameters.oracle_num_speakers = False
 
     # Here, we use our in-house pretrained NeMo VAD model
     config.diarizer.vad.model_path = pretrained_vad
