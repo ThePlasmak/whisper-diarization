@@ -69,7 +69,6 @@ args = parser.parse_args()
 
 if args.stemming:
     # Isolate vocals from the rest of the audio
-
     return_code = os.system(
         f'python3 -m demucs.separate -n htdemucs --two-stems=vocals "{args.audio}" -o "temp_outputs"'
     )
