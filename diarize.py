@@ -35,8 +35,9 @@ parser.add_argument(
 parser.add_argument(
     "-m", "--whisper-model",
     dest="model_name",
-    default="large-v2", # Select from this list: tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large
-    help="Name of the Whisper model to use.",
+    default="large-v2",
+    help="Name of the Whisper model to use."
+    "Select from this list: tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large.",
 )
 parser.add_argument(
     "--device",
@@ -62,17 +63,18 @@ parser.add_argument(
     dest="beam_size",
     type=int,
     default=1,
-    help="Enter the desired beam size." "The higher the beam size, the more accurate the transcription, but the process is slower and more likely to run out of memory.",
+    help="Enter the desired beam size."
+    "The higher the beam size, the more accurate the transcription, but the process is slower and more likely to run out of memory.",
 )
 parser.add_argument(
     "-dt", "--domain-type",
     dest="domain_type",
     type=str,
     default="telephonic", # Can be "general", "meeting" or "telephonic" based on domain type of the audio file (see https://github.com/NVIDIA/NeMo/tree/main/examples/speaker_tasks/diarization/conf/inference)
-    # general: optimized to show balanced performances on various types of domains
-    # meeting: suitable for 3~5 speakers participating in a meeting and may not show the best performance on other types of dialogues
-    # telephonic: suitable for telephone recordings involving 2~8 speakers in a session and may not show the best performance on the other types of acoustic conditions or dialogues
-    help="Enter the desired domain type." "general: optimized to show balanced performances on various types of domains." "meeting: suitable for 3~5 speakers participating in a meeting and may not show the best performance on other types of dialogues." "telephonic: suitable for telephone recordings involving 2~8 speakers in a session and may not show the best performance on the other types of acoustic conditions or dialogues.",
+    help="Enter the desired domain type."
+    "general: optimized to show balanced performances on various types of domains."
+    "meeting: suitable for 3~5 speakers participating in a meeting and may not show the best performance on other types of dialogues."
+    "telephonic: suitable for telephone recordings involving 2~8 speakers in a session and may not show the best performance on the other types of acoustic conditions or dialogues.",
 )
 
 args = parser.parse_args()
