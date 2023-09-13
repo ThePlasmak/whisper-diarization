@@ -64,6 +64,13 @@ parser.add_argument(
     default=1,
     help="Enter the desired beam size." "The higher the beam size, the more accurate the transcription, but the process is slower and more likely to run out of memory.",
 )
+parser.add_argument(
+    "-dt", "--domain-type",
+    dest="domain_type",
+    type=str,
+    default="telephonic",
+    help="Enter the desired beam size." "The higher the beam size, the more accurate the transcription, but the process is slower and more likely to run out of memory.",
+)
 
 args = parser.parse_args()
 
@@ -138,7 +145,7 @@ os.makedirs(temp_path, exist_ok=True)
 soundfile.write(os.path.join(temp_path, "mono_file.wav"), signal, sample_rate, "PCM_24")
 
 # Initialize NeMo MSDD diarization model
-msdd_model = NeuralDiarizer(cfg=create_config(temp_path, args.num_speakers)).to(args.device)
+msdd_model = NeuralDiarizer(cfg=create_config(temp_path, args.domain_type, args.num_speakers)).to(args.device)
 msdd_model.diarize()
 
 del msdd_model
