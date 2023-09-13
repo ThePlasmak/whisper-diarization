@@ -13,7 +13,7 @@ import logging
 import time
 
 # Example command:
-# python3 diarize.py -a "Animal Communication Ezekiel.m4a" -l en
+# python3 diarize.py -a "Popular Cinema Week 4.mp4" -l en
 
 start_time = time.time()
 
@@ -48,13 +48,13 @@ parser.add_argument(
     "-s","--speakers",
     dest="num_speakers",
     type=int,
-    default="",
+    default=None,
     help="Enter the number of speakers.",
 )
 parser.add_argument(
     "-l", "--language",
     dest="language",
-    default="",
+    default=None,
     help="Enter the language (in an ISO 639-1 Code).",
 )
 parser.add_argument(
