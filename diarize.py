@@ -22,7 +22,10 @@ mtypes = {'cpu': 'int8', 'cuda': 'float16'}
 # Initialize parser
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "-a", "--audio", help="name of the target audio file", required=True, type=str,
+    "-a", "--audio",
+    help="Name of the target audio file.",
+    required=True,
+    type=str,
 )
 parser.add_argument(
     "--no-stem",
