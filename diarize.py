@@ -13,7 +13,7 @@ import logging
 import time
 
 # Example command:
-# python3 diarize.py -a "Popular Cinema Week 4.mp4" -l en
+# python3 diarize.py -a "audio.mp4" -l en
 
 start_time = time.time()
 
@@ -22,7 +22,7 @@ mtypes = {'cpu': 'int8', 'cuda': 'float16'}
 # Initialize parser
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "-a", "--audio", help="name of the target audio file", required=True
+    "-a", "--audio", help="name of the target audio file", required=True, type=str,
 )
 parser.add_argument(
     "--no-stem",
@@ -35,6 +35,7 @@ parser.add_argument(
 parser.add_argument(
     "-m", "--whisper-model",
     dest="model_name",
+    type=str,
     default="large-v2",
     help="Name of the Whisper model to use."
     "Select from this list: tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large.",
@@ -42,6 +43,7 @@ parser.add_argument(
 parser.add_argument(
     "--device",
     dest="device",
+    type=str,
     default="cuda" if torch.cuda.is_available() else "cpu",
     help="If you have a GPU use 'cuda', otherwise use 'cpu'.",
 )
@@ -55,6 +57,7 @@ parser.add_argument(
 parser.add_argument(
     "-l", "--language",
     dest="language",
+    type=str,
     default=None,
     help="Enter the language (in an ISO 639-1 Code).",
 )
