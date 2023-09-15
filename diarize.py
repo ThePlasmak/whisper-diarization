@@ -70,7 +70,7 @@ parser.add_argument(
     type=int,
     default=1,
     help="Enter the desired beam size."
-    "The higher the beam size, the more accurate the transcription, but the process is slower and more likely to run out of memory.",
+    "The higher the beam size, the more accurate the transcription, but the slower the process and the higher the likelihood of running out of memory.",
 )
 parser.add_argument(
     "-dt", "--domain-type",
