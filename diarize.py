@@ -13,7 +13,7 @@ import logging
 import time
 
 # Example command:
-# python3 diarize.py -a "audio.mp4" -l en
+# python3 diarize.py -a "Creative Writing Playwriting Week 5.m4a" -l en
 
 start_time = time.time()
 
@@ -41,7 +41,7 @@ parser.add_argument(
     type=str,
     default="large-v2",
     help="Name of the Whisper model to use."
-    "Select from this list: tiny.en, tiny, base.en, base, small.en, small, medium.en, medium, large-v1, large-v2, large.",
+    "Select from this list: 'tiny.en', 'tiny', 'base.en', 'base', 'small.en', 'small', 'medium.en', 'medium', 'large-v1', 'large-v2', 'large'.",
 )
 parser.add_argument(
     "--device",
