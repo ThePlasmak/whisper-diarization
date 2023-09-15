@@ -14,16 +14,15 @@
   </a>
   <a href="https://twitter.com/intent/tweet?text=&url=https%3A%2F%2Fgithub.com%2FMahmoudAshraf97%2Fwhisper-diarization">
   <img src="https://img.shields.io/twitter/url/https/github.com/MahmoudAshraf97/whisper-diarization.svg?style=social" alt="Twitter">
-  </a> 
+  </a>
   </a>
   <a href="https://colab.research.google.com/github/MahmoudAshraf97/whisper-diarization/blob/main/Whisper_Transcription_%2B_NeMo_Diarization.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab">
   </a>
- 
+
 </p>
 
 
-# 
 Speaker Diarization pipeline based on OpenAI Whisper
 I'd like to thank [@m-bain](https://github.com/m-bain) for Wav2Vec2 forced alignment, [@mu4farooqi](https://github.com/mu4farooqi) for punctuation realignment algorithm
 
@@ -34,6 +33,7 @@ This repository combines Whisper ASR capabilities with Voice Activity Detection 
 
 
 Whisper, WhisperX and NeMo parameters are coded into diarize.py and helpers.py, I will add the CLI arguments to change them later
+
 ## Installation
 `FFMPEG` and `Cython` are needed as prerquisites to install the requirements
 ```
@@ -62,13 +62,13 @@ scoop install ffmpeg
 ```
 pip install -r requirements.txt
 ```
-## Usage 
+## Usage
 
 ```
 python diarize.py -a AUDIO_FILE_NAME
 ```
 
-If your system has enough VRAM (>=10GB), you can use `diarize_parallel.py` instead, the difference is that it runs NeMo in parallel with Whisper, this can be benifecial in some cases and the result is the same since the two models are not dependant on each other. This is still experimental, so expect errors and sharp edges. Your feedback is welcome.
+If your system has enough VRAM (>=10GB), you can use `diarize_parallel.py` instead, the difference is that it runs NeMo in parallel with Whisper, this can be benifecial in some cases and the result is the same since the two models are not dependent on each other. This is still experimental, so expect errors and sharp edges. Your feedback is welcome.
 
 ## Command Line Options
 
@@ -85,6 +85,6 @@ If your system has enough VRAM (>=10GB), you can use `diarize_parallel.py` inste
 - Implement a maximum length per sentence for SRT
 - Improve Batch Processing
 
-## Aknowledgements
+## Acknowledgements
 Special Thanks for [@adamjonas](https://github.com/adamjonas) for supporting this project
 This work is based on [OpenAI's Whisper](https://github.com/openai/whisper) , [Faster Whisper](https://github.com/guillaumekln/faster-whisper) , [Nvidia NeMo](https://github.com/NVIDIA/NeMo) , and [Facebook's Demucs](https://github.com/facebookresearch/demucs)
