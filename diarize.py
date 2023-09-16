@@ -12,9 +12,6 @@ import re
 import logging
 import time
 
-# Example command:
-# python3 diarize.py -a "test.wav" -l en
-
 start_time = time.time()
 
 mtypes = {'cpu': 'int8', 'cuda': 'float16'}
