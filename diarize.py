@@ -13,7 +13,7 @@ import logging
 import time
 
 # Example command:
-# python3 diarize.py -a "Creative Writing Playwriting Week 5.m4a" -l en
+# python3 diarize.py -a "test.wav" -l en
 
 start_time = time.time()
 
