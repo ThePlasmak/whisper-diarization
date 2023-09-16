@@ -65,7 +65,7 @@ parser.add_argument(
     "-bs", "--beam-size",
     dest="beam_size",
     type=int,
-    default=1,
+    default=2,
     help="Enter the desired beam size."
     "The higher the beam size, the more accurate the transcription, but the slower the process and the higher the likelihood of running out of memory.",
 )
