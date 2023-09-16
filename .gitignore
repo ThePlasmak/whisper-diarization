@@ -4,10 +4,35 @@ __pycache__/
 *.srt
 *.txt
 
-*.wav
+# Audio
+*.aif
+*.iff
+*.m3u
+*.m4a
+*.mid
 *.mp3
+*.mpa
+*.ra
+*.wav
+*.wma
 *.ogg
+*.flac
 
+# Video
+*.3g2
+*.3gp
+*.asf
+*.asx
+*.avi
+*.flv
+*.mkv
+*.mov
 *.mp4
 *.m4a
+*.mpg
+*.ogv
+*.rm
+*.swf
+*.vob
+*.wmv
 *.webm
