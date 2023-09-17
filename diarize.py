@@ -90,13 +90,10 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-# Check if the file is a WEBM file
 if args.audio.endswith('.webm'):
-    # Convert WEBM to WAV using ffmpeg
     new_filename = args.audio.replace('.webm', '.wav')
     os.system(f'ffmpeg -i {args.audio} {new_filename}')
 
-    # Use the WAV file for the rest of the script
     audio = new_filename
 else:
     audio = args.audio
