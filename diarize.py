@@ -20,6 +20,7 @@ mtypes = {'cpu': 'int8', 'cuda': 'float16'}
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "-a", "--audio",
+    dest="audio",
     required=True,
     type=str,
     help="Name of the target audio file.",
@@ -89,23 +90,34 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+# Check if the file is a WEBM file
+if args.audio.endswith('.webm'):
+    # Convert WEBM to WAV using ffmpeg
+    new_filename = args.audio.replace('.webm', '.wav')
+    os.system(f'ffmpeg -i {args.audio} {new_filename}')
+
+    # Use the WAV file for the rest of the script
+    audio = new_filename
+else:
+    audio = args.audio
+
 if args.stemming:
     # Isolate vocals from the rest of the audio
     return_code = os.system(
-        f'python3 -m demucs.separate -n htdemucs --two-stems=vocals "{args.audio}" -o "temp_outputs"'
+        f'python3 -m demucs.separate -n htdemucs --two-stems=vocals "{audio}" -o "temp_outputs"'
     )
 
     if return_code != 0:
         logging.warning(
             "Source splitting failed, using original audio file. Use --no-stem argument to disable it."
         )
-        vocal_target = args.audio
+        vocal_target = audio
     else:
         vocal_target = os.path.join(
-            "temp_outputs", "htdemucs", os.path.basename(args.audio[:-4]), "vocals.wav"
+            "temp_outputs", "htdemucs", os.path.basename(audio[:-4]), "vocals.wav"
         )
 else:
-    vocal_target = args.audio
+    vocal_target = audio
 
 
 # Run on GPU with FP16
@@ -216,31 +228,24 @@ else:
 if args.speaker_duration is not None: # then split periods where a single speaker talks into chunks
     speaker_duration_ms = args.speaker_duration*1000
     split_segments = split_word_segments_by_duration(wsm, speaker_duration_ms)
-    print(split_segments)
 
-    with open(f"{args.audio[:-4]}.txt", "w", encoding="utf-8-sig") as f:
+    with open(f"{audio[:-4]}.txt", "w", encoding="utf-8-sig") as f:
         get_speaker_aware_transcript(split_segments, f)
 
-    with open(f"{args.audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
+    with open(f"{audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
         write_srt(split_segments, srt)
 else: # no splitting
     ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
 
-    with open(f"{args.audio[:-4]}.txt", "w", encoding="utf-8-sig") as f:
+    with open(f"{audio[:-4]}.txt", "w", encoding="utf-8-sig") as f:
         get_speaker_aware_transcript(ssm, f)
 
-    with open(f"{args.audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
+    with open(f"{audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
         write_srt(ssm, srt)
 
-ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
-
-with open(f"{args.audio[:-4]}_no_split.txt", "w", encoding="utf-8-sig") as f:
-    get_speaker_aware_transcript(ssm, f)
-
-with open(f"{args.audio[:-4]}_no_split.srt", "w", encoding="utf-8-sig") as srt:
-    write_srt(ssm, srt)
-
 cleanup(temp_path)
+if new_filename:
+    os.remove(new_filename)
 
 # Time calculation
 time_taken_seconds = time.time() - start_time # Calculate the time taken in seconds
