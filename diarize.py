@@ -119,9 +119,7 @@ else:
 
 
 # Run on GPU with FP16
-whisper_model = WhisperModel(
-    args.model_name, device=args.device, compute_type=mtypes[args.device])
-
+whisper_model = WhisperModel(args.model_name, device=args.device, compute_type=mtypes[args.device])
 # or run on GPU with INT8
 # whisper_model = WhisperModel(args.model_name, device="cuda", compute_type="int8_float16")
 # or run on CPU with INT8
@@ -134,11 +132,47 @@ transcribe_args = {
 if args.language:
     transcribe_args["language"] = args.language
 
-segments, info = whisper_model.transcribe(vocal_target, **transcribe_args)
+# Map of model names to their smaller versions
+model_downgrade_map = {
+    "large-v2": "medium",
+    "large-v1": "medium",
+    "large": "medium",
+    "medium": "small",
+    "small": "base",
+    "base": "tiny"
+}
 
 whisper_results = []
-for segment in segments:
-    whisper_results.append(segment._asdict())
+while True:
+    try:
+        segments, info = whisper_model.transcribe(vocal_target, **transcribe_args)
+
+        whisper_results = [segment._asdict() for segment in segments]
+        break  # Exit the loop if transcription is successful
+    except RuntimeError as e:
+        # Clear the previous model from memory
+        del whisper_model
+        torch.cuda.empty_cache()
+
+        # If the current model is "tiny", print the error and break
+        if args.model_name == "tiny":
+            print(e)
+            print(f"Cannot downgrade to a smaller model from {args.model_name}. Exiting.")
+            exit()
+
+        # Downgrade the model
+        new_model_name = model_downgrade_map.get(args.model_name)
+        if not new_model_name:
+            print(e)
+            print(f"Cannot downgrade to a smaller model from {args.model_name}. Exiting.")
+            exit()
+
+        print(e)
+        print(f"Downgrading from {args.model_name} to {new_model_name} model.")
+
+        whisper_model = WhisperModel(new_model_name, device=args.device, compute_type=mtypes[args.device]) # load new model
+
+        args.model_name = new_model_name
 
 # clear gpu vram
 del whisper_model
@@ -149,10 +183,18 @@ if language_to_check in wav2vec2_langs:
     alignment_model, metadata = whisperx.load_align_model(
         language_code=language_to_check, device=args.device
     )
-    result_aligned = whisperx.align(
-        whisper_results, alignment_model, metadata, vocal_target, args.device
-    )
-    word_timestamps = result_aligned["word_segments"]
+    try:
+        result_aligned = whisperx.align(
+            whisper_results, alignment_model, metadata, vocal_target, args.device
+        )
+        word_timestamps = result_aligned["word_segments"]
+    except RuntimeError as e:
+        print(e)
+        print("Skipping alignment.")
+        word_timestamps = []
+        for segment in whisper_results:
+            for word in segment["words"]:
+                word_timestamps.append({"text": word[2], "start": word[0], "end": word[1]})
     # clear gpu vram
     del alignment_model
     torch.cuda.empty_cache()
