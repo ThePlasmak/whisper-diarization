@@ -90,6 +90,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+new_filename = None
 if args.audio.endswith('.webm'):
     new_filename = args.audio.replace('.webm', '.wav')
     os.system(f'ffmpeg -i {args.audio} {new_filename}')
@@ -241,7 +242,8 @@ else: # no splitting
         write_srt(ssm, srt)
 
 cleanup(temp_path)
-if new_filename:
+
+if new_filename is not None:
     os.remove(new_filename)
 
 # Time calculation
