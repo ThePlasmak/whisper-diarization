@@ -93,10 +93,7 @@ def split_speaker_segments_by_duration(sentences_speaker_mapping, max_duration):
     return split_segments
 
 def create_config(output_dir, domain_type, num_speakers):
-    DOMAIN_TYPE = domain_type  # Can be "general", "meeting" or "telephonic" based on domain type of the audio file (see https://github.com/NVIDIA/NeMo/tree/main/examples/speaker_tasks/diarization/conf/inference)
-    # general: optimized to show balanced performances on various types of domains
-    # meeting: suitable for 3~5 speakers participating in a meeting and may not show the best performance on other types of dialogues
-    # telephonic: suitable for telephone recordings involving 2~8 speakers in a session and may not show the best performance on the other types of acoustic conditions or dialogues
+    DOMAIN_TYPE = domain_type
     CONFIG_FILE_NAME = f"diar_infer_{DOMAIN_TYPE}.yaml"
     CONFIG_URL = f"https://raw.githubusercontent.com/NVIDIA/NeMo/main/examples/speaker_tasks/diarization/conf/inference/{CONFIG_FILE_NAME}"
     MODEL_CONFIG = os.path.join(output_dir, CONFIG_FILE_NAME)
