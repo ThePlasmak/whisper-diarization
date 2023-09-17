@@ -84,7 +84,7 @@ parser.add_argument(
     dest="speaker_duration",
     type=float,
     default=None,
-    help="Duration (in seconds) to split long segments of a single speaker talking.",
+    help="Duration (in seconds) to split long segments of a single speaker talking. (The script will cut a little bit over the duration.)"
 )
 
 args = parser.parse_args()
