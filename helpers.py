@@ -41,6 +41,56 @@ wav2vec2_langs = [
     "tr",
 ]
 
+def split_speaker_segments_by_duration(sentences_speaker_mapping, max_duration):
+    """
+    Split speaker segments if they exceed a certain duration.
+
+    Args:
+    - sentences_speaker_mapping (list): List of speaker segments.
+    - max_duration (int): Maximum duration (in milliseconds) for a speaker segment.
+
+    Returns:
+    - list: List of split speaker segments.
+    """
+    split_segments = []
+
+    for segment in sentences_speaker_mapping:
+        duration = segment['end_time'] - segment['start_time']
+        words = segment['text'].split()
+
+        if duration <= max_duration or len(words) == 1:
+            split_segments.append(segment)
+            continue
+
+        time_per_word = duration / len(words)
+        current_duration = 0
+        current_words = []
+        current_start_time = segment['start_time']
+
+        for word in words:
+            current_duration += time_per_word
+            current_words.append(word)
+
+            if current_duration >= max_duration:
+                split_segments.append({
+                    'speaker': segment['speaker'],
+                    'start_time': current_start_time,
+                    'end_time': current_start_time + current_duration,
+                    'text': ' '.join(current_words)
+                })
+                current_start_time += current_duration
+                current_duration = 0
+                current_words = []
+
+        if current_words:
+            split_segments.append({
+                'speaker': segment['speaker'],
+                'start_time': current_start_time,
+                'end_time': segment['end_time'],
+                'text': ' '.join(current_words)
+            })
+
+    return split_segments
 
 def create_config(output_dir, domain_type, num_speakers):
     DOMAIN_TYPE = domain_type  # Can be "general", "meeting" or "telephonic" based on domain type of the audio file (see https://github.com/NVIDIA/NeMo/tree/main/examples/speaker_tasks/diarization/conf/inference)
@@ -272,24 +322,15 @@ def get_speaker_aware_transcript(sentences_speaker_mapping, f):
         f.write(f"\n\n{sp}: {text}")
 
 
-def format_timestamp(
-    milliseconds: float, always_include_hours: bool = False, decimal_marker: str = "."
-):
-    assert milliseconds >= 0, "non-negative timestamp expected"
-
-    hours = milliseconds // 3_600_000
-    milliseconds -= hours * 3_600_000
-
-    minutes = milliseconds // 60_000
-    milliseconds -= minutes * 60_000
-
-    seconds = milliseconds // 1_000
-    milliseconds -= seconds * 1_000
+def format_timestamp(milliseconds, always_include_hours=False, decimal_marker='.'):
+    total_seconds = milliseconds / 1000
+    hours = int(total_seconds // 3600)
+    minutes = int((total_seconds % 3600) // 60)
+    seconds = int(total_seconds % 60)
+    milliseconds = int((total_seconds * 1000) % 1000)
 
     hours_marker = f"{hours:02d}:" if always_include_hours or hours > 0 else ""
-    return (
-        f"{hours_marker}{minutes:02d}:{seconds:02d}{decimal_marker}{milliseconds:03d}"
-    )
+    return f"{hours_marker}{minutes:02d}:{seconds:02d}{decimal_marker}{milliseconds:03d}"
 
 
 def write_srt(transcript, file):

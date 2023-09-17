@@ -79,6 +79,13 @@ parser.add_argument(
     "meeting: suitable for 3~5 speakers participating in a meeting and may not show the best performance on other types of dialogues."
     "telephonic: suitable for telephone recordings involving 2~8 speakers in a session and may not show the best performance on the other types of acoustic conditions or dialogues.",
 )
+parser.add_argument(
+    "-sd", "--speaker-duration",
+    dest="speaker_duration",
+    type=float,
+    default=None,
+    help="Duration (in seconds) to split long segments of a single speaker talking.",
+)
 
 args = parser.parse_args()
 
@@ -122,6 +129,7 @@ segments, info = whisper_model.transcribe(vocal_target, **transcribe_args)
 whisper_results = []
 for segment in segments:
     whisper_results.append(segment._asdict())
+
 # clear gpu vram
 del whisper_model
 torch.cuda.empty_cache()
@@ -206,6 +214,11 @@ else:
     )
 
 ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
+
+if args.speaker_duration is not None:
+    speaker_duration_ms = args.speaker_duration*1000
+    split_segments = split_speaker_segments_by_duration(ssm, speaker_duration_ms)
+    ssm = split_segments
 
 with open(f"{args.audio[:-4]}.txt", "w", encoding="utf-8-sig") as f:
     get_speaker_aware_transcript(ssm, f)
