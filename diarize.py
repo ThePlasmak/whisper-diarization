@@ -23,7 +23,7 @@ parser.add_argument(
     dest="audio",
     required=True,
     type=str,
-    help="Name of the target audio file.",
+    help="Name of the target audio file or file path.",
 )
 parser.add_argument(
     "--no-stem",
