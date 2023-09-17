@@ -41,56 +41,42 @@ wav2vec2_langs = [
     "tr",
 ]
 
-def split_speaker_segments_by_duration(sentences_speaker_mapping, max_duration):
-    """
-    Split speaker segments if they exceed a certain duration.
+def split_word_segments_by_duration(wsm, max_duration):
+    segments = []
+    segment_start_time = wsm[0]['start_time']
+    segment_duration = 0
+    segment_text = []
+    current_speaker = wsm[0]['speaker']
 
-    Args:
-    - sentences_speaker_mapping (list): List of speaker segments.
-    - max_duration (int): Maximum duration (in milliseconds) for a speaker segment.
+    for word in wsm:
+        word_duration = word['end_time'] - word['start_time']
 
-    Returns:
-    - list: List of split speaker segments.
-    """
-    split_segments = []
-
-    for segment in sentences_speaker_mapping:
-        duration = segment['end_time'] - segment['start_time']
-        words = segment['text'].split()
-
-        if duration <= max_duration or len(words) == 1:
-            split_segments.append(segment)
-            continue
-
-        time_per_word = duration / len(words)
-        current_duration = 0
-        current_words = []
-        current_start_time = segment['start_time']
-
-        for word in words:
-            current_duration += time_per_word
-            current_words.append(word)
-
-            if current_duration >= max_duration:
-                split_segments.append({
-                    'speaker': segment['speaker'],
-                    'start_time': current_start_time,
-                    'end_time': current_start_time + current_duration,
-                    'text': ' '.join(current_words)
-                })
-                current_start_time += current_duration
-                current_duration = 0
-                current_words = []
-
-        if current_words:
-            split_segments.append({
-                'speaker': segment['speaker'],
-                'start_time': current_start_time,
-                'end_time': segment['end_time'],
-                'text': ' '.join(current_words)
+        # If adding the current word exceeds the max_duration or the speaker changes
+        if segment_duration + word_duration > max_duration or word['speaker'] != current_speaker:
+            segments.append({
+                'speaker': f"Speaker {current_speaker}",
+                'start_time': segment_start_time,
+                'end_time': word['start_time'],
+                'text': ' '.join(segment_text)
             })
+            segment_duration = 0
+            segment_text = []
+            segment_start_time = word['start_time']
+            current_speaker = word['speaker']
 
-    return split_segments
+        segment_duration += word_duration
+        segment_text.append(word['word'])
+
+    # Add the last segment
+    if segment_text:
+        segments.append({
+            'speaker': f"Speaker {current_speaker}",
+            'start_time': segment_start_time,
+            'end_time': wsm[-1]['end_time'],
+            'text': ' '.join(segment_text)
+        })
+
+    return segments
 
 def create_config(output_dir, domain_type, num_speakers):
     DOMAIN_TYPE = domain_type

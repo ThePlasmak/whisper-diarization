@@ -65,7 +65,7 @@ parser.add_argument(
     "-bs", "--beam-size",
     dest="beam_size",
     type=int,
-    default=2,
+    default=1,
     help="Enter the desired beam size."
     "The higher the beam size, the more accurate the transcription, but the slower the process and the higher the likelihood of running out of memory.",
 )
@@ -213,17 +213,31 @@ else:
         f'Punctuation restoration is not available for {language_to_check} language.'
     )
 
+if args.speaker_duration is not None: # then split periods where a single speaker talks into chunks
+    speaker_duration_ms = args.speaker_duration*1000
+    split_segments = split_word_segments_by_duration(wsm, speaker_duration_ms)
+    print(split_segments)
+
+    with open(f"{args.audio[:-4]}.txt", "w", encoding="utf-8-sig") as f:
+        get_speaker_aware_transcript(split_segments, f)
+
+    with open(f"{args.audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
+        write_srt(split_segments, srt)
+else: # no splitting
+    ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
+
+    with open(f"{args.audio[:-4]}.txt", "w", encoding="utf-8-sig") as f:
+        get_speaker_aware_transcript(ssm, f)
+
+    with open(f"{args.audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
+        write_srt(ssm, srt)
+
 ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
 
-if args.speaker_duration is not None:
-    speaker_duration_ms = args.speaker_duration*1000
-    split_segments = split_speaker_segments_by_duration(ssm, speaker_duration_ms)
-    ssm = split_segments
-
-with open(f"{args.audio[:-4]}.txt", "w", encoding="utf-8-sig") as f:
+with open(f"{args.audio[:-4]}_no_split.txt", "w", encoding="utf-8-sig") as f:
     get_speaker_aware_transcript(ssm, f)
 
-with open(f"{args.audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
+with open(f"{args.audio[:-4]}_no_split.srt", "w", encoding="utf-8-sig") as srt:
     write_srt(ssm, srt)
 
 cleanup(temp_path)
