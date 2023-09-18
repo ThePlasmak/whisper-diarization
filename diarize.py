@@ -138,8 +138,11 @@ model_downgrade_map = {
     "large-v1": "medium",
     "large": "medium",
     "medium": "small",
+    "medium.en": "small.en",
     "small": "base",
-    "base": "tiny"
+    "small.en": "base.en",
+    "base": "tiny",
+    "base.en": "tiny.en"
 }
 
 whisper_results = []
