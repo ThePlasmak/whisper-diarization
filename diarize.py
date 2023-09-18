@@ -93,7 +93,7 @@ args = parser.parse_args()
 new_filename = None
 if args.audio.endswith('.webm'):
     new_filename = args.audio.replace('.webm', '.wav')
-    os.system(f'ffmpeg -i {args.audio} {new_filename}')
+    os.system(f'ffmpeg -i "{args.audio}" "{new_filename}"')
 
     audio = new_filename
 else:
@@ -286,23 +286,37 @@ else: # no splitting
     with open(f"{audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
         write_srt(ssm, srt)
 
+with open(f"{audio[:-4]}_movie.srt", "w", encoding="utf-8-sig") as srt:
+    write_movie_srt(wsm, srt)
+
+with open(f"{audio[:-4]}.txt", "w+", encoding="utf-8-sig") as f:
+    file_contents = f.read()
+    stripped_text = file_contents.strip()
+    f.seek(0)
+    f.write(stripped_text)
+    f.truncate()
+
 cleanup(temp_path)
 
 if new_filename is not None:
     os.remove(new_filename)
 
 # Time calculation
-time_taken_seconds = time.time() - start_time # Calculate the time taken in seconds
-time_taken_formatted = "{:.3f}".format(time_taken_seconds) # Format the time taken to three decimal places
+time_taken_seconds = time.time() - start_time  # Calculate the time taken in seconds
+time_taken_formatted = "{:.3f}".format(time_taken_seconds)  # Format the time taken to three decimal places
 
 # Calculate hours, minutes, and seconds
 hours = int(time_taken_seconds // 3600)
-minutes = int((time_taken_seconds % 3600) // 60)
-seconds = int(time_taken_seconds % 60)
+time_taken_seconds %= 3600  # Update the remaining seconds after calculating hours
 
-# Print the time taken in hours, minutes, and seconds format with three decimal places
+minutes = int(time_taken_seconds // 60)
+time_taken_seconds %= 60  # Update the remaining seconds after calculating minutes
+
+seconds = "{:.3f}".format(time_taken_seconds)  # Format the remaining seconds to three decimal places
+
+# Print the time taken in hours, minutes, and seconds format
 print(
     "Time taken: {} hours, {} minutes, {} seconds".format(
-        hours, minutes, time_taken_formatted
+        hours, minutes, seconds
     )
 )
