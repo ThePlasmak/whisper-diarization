@@ -1,128 +1,58 @@
-test_name = "tester.mp4"
-speaker_duration = 2 # in seconds
-speaker_ts = [[460, 4360, 1], [5500, 9240, 2], [10060, 10280, 0], [11900, 12840, 0], [13100, 14280, 0], [14620, 14920, 0]]
-wsm = [{'word': 'Now', 'start_time': 582, 'end_time': 783, 'speaker': 1}, {'word': 'listen', 'start_time': 883, 'end_time': 1225, 'speaker': 1}, {'word': 'to', 'start_time': 1265, 'end_time': 1406, 'speaker': 1}, {'word': 'a', 'start_time': 1446, 'end_time': 1466, 'speaker': 1}, {'word': 'conversation', 'start_time': 1546, 'end_time': 2310, 'speaker': 1}, {'word': 'between', 'start_time': 2370, 'end_time': 2691, 'speaker': 1}, {'word': 'a', 'start_time': 2731, 'end_time': 2772, 'speaker': 1}, {'word': 'student', 'start_time': 2832, 'end_time': 3274, 'speaker': 1}, {'word': 'and', 'start_time': 3475, 'end_time': 3595, 'speaker': 1}, {'word': 'a', 'start_time': 3635, 'end_time': 3655, 'speaker': 1}, {'word': 'professor.', 'start_time': 3716, 'end_time': 4258, 'speaker': 1}, {'word': 'So,', 'start_time': 5680, 'end_time': 5820, 'speaker': 2}, {'word': 'Erin,', 'start_time': 5901, 'end_time': 6182, 'speaker': 2}, {'word': 'in', 'start_time': 6444, 'end_time': 6524, 'speaker': 2}, {'word': 'your', 'start_time': 6544, 'end_time': 6705, 'speaker': 2}, {'word': 'email', 'start_time': 6806, 'end_time': 7147, 'speaker': 2}, {'word': 'you', 'start_time': 7188, 'end_time': 7288, 'speaker': 2}, {'word': 'said', 'start_time': 7328, 'end_time': 7489, 'speaker': 2}, {'word': 'you', 'start_time': 7530, 'end_time': 7650, 'speaker': 2}, {'word': 'wanted', 'start_time': 7690, 'end_time': 7932, 'speaker': 2}, {'word': 'to', 'start_time': 7972, 'end_time': 8032, 'speaker': 2}, {'word': 'talk', 'start_time': 8093, 'end_time': 8314, 'speaker': 2}, {'word': 'about', 'start_time': 8374, 'end_time': 8595, 'speaker': 2}, {'word': 'the', 'start_time': 8636, 'end_time': 8736, 'speaker': 2}, {'word': 'exam.', 'start_time': 8796, 'end_time': 9199, 'speaker': 2}, {'word': 'Yeah,', 'start_time': 10180, 'end_time': 11003, 'speaker': 0}, {'word': "I've", 'start_time': 11506, 'end_time': 11646, 'speaker': 0}, {'word': 'just', 'start_time': 11666, 'end_time': 11867, 'speaker': 0}, {'word': 'never', 'start_time': 11988, 'end_time': 12249, 'speaker': 0}, {'word': 'taken', 'start_time': 12390, 'end_time': 12751, 'speaker': 0}, {'word': 'a', 'start_time': 12791, 'end_time': 12831, 'speaker': 0}, {'word': 'class', 'start_time': 12892, 'end_time': 13233, 'speaker': 0}, {'word': 'with', 'start_time': 13274, 'end_time': 13434, 'speaker': 0}, {'word': 'so', 'start_time': 13495, 'end_time': 13675, 'speaker': 0}, {'word': 'many', 'start_time': 13716, 'end_time': 13896, 'speaker': 0}, {'word': 'different', 'start_time': 13937, 'end_time': 14238, 'speaker': 0}, {'word': 'readings.', 'start_time': 14298, 'end_time': 14600, 'speaker': 0}]
+def write_movie_srt(wsm, srt_file):
+    max_words_per_entry = 12  # Maximum number of words per subtitle entry
+    current_words = []  # Words for the current subtitle entry
+    current_start_time = None  # Start time for the current subtitle entry
+    current_speaker = None  # Speaker for the current subtitle entry
+    entry_count = 1  # Subtitle entry count
+    last_end_time = 0  # Last end time to prevent overlaps
 
-def split_word_segments_by_duration(wsm, max_duration):
-    segments = []
-    segment_start_time = wsm[0]['start_time']
-    segment_duration = 0
-    segment_text = []
-    current_speaker = wsm[0]['speaker']
+    for entry in wsm:
+        word = entry['word']
+        start_time = entry['start_time']
+        end_time = entry['end_time']
+        speaker = entry['speaker']
 
-    for word in wsm:
-        word_duration = word['end_time'] - word['start_time']
+        # Prevent overlap by adjusting the start_time
+        if start_time < last_end_time:
+            start_time = last_end_time
 
-        # If adding the current word exceeds the max_duration or the speaker changes
-        if segment_duration + word_duration > max_duration or word['speaker'] != current_speaker:
-            segments.append({
-                'speaker': f"Speaker {current_speaker}",
-                'start_time': segment_start_time,
-                'end_time': word['start_time'],
-                'text': ' '.join(segment_text)
-            })
-            segment_duration = 0
-            segment_text = []
-            segment_start_time = word['start_time']
-            current_speaker = word['speaker']
+        if current_start_time is None:
+            current_start_time = start_time
 
-        segment_duration += word_duration
-        segment_text.append(word['word'])
+        if current_speaker is None:
+            current_speaker = speaker
 
-    # Add the last segment
-    if segment_text:
-        segments.append({
-            'speaker': f"Speaker {current_speaker}",
-            'start_time': segment_start_time,
-            'end_time': wsm[-1]['end_time'],
-            'text': ' '.join(segment_text)
-        })
+        # Create a new subtitle entry if the word limit is reached or the speaker changes
+        if len(current_words) >= max_words_per_entry or current_speaker != speaker:
+            srt_file.write(f"{entry_count}\n")
+            srt_file.write(f"{format_time(current_start_time)} --> {format_time(end_time)}\n")
+            srt_file.write(f"Speaker {current_speaker}: {' '.join(current_words)}\n\n")
+            entry_count += 1
+            current_words = []
+            current_start_time = start_time
+            current_speaker = speaker
+            last_end_time = end_time  # Update the last end time
 
-    return segments
+        current_words.append(word)
+
+    # Write the last subtitle entry
+    if current_words:
+        srt_file.write(f"{entry_count}\n")
+        srt_file.write(f"{format_time(current_start_time)} --> {format_time(end_time)}\n")
+        srt_file.write(f"Speaker {current_speaker}: {' '.join(current_words)}\n")
 
 
-def get_speaker_aware_transcript(sentences_speaker_mapping, f):
-    for sentence_dict in sentences_speaker_mapping:
-        sp = sentence_dict["speaker"]
-        text = sentence_dict["text"]
-        f.write(f"\n\n{sp}: {text}")
+# Helper function to format time in SRT format
+def format_time(time_in_milliseconds):
+    seconds, milliseconds = divmod(time_in_milliseconds, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
 
-def get_sentences_speaker_mapping(word_speaker_mapping, spk_ts):
-    s, e, spk = spk_ts[0]
-    prev_spk = spk
 
-    snts = []
-    snt = {"speaker": f"Speaker {spk}", "start_time": s, "end_time": e, "text": ""}
+# Example usage
+wsm = [{'word': 'animals,', 'start_time': 603923, 'end_time': 604304, 'speaker': 0}, {'word': 'try', 'start_time': 604324, 'end_time': 604565, 'speaker': 0}, {'word': 'to', 'start_time': 604987, 'end_time': 605167, 'speaker': 0}, {'word': 'get', 'start_time': 605187, 'end_time': 605288, 'speaker': 0}, {'word': 'them', 'start_time': 605308, 'end_time': 605428, 'speaker': 0}, {'word': 'to', 'start_time': 605448, 'end_time': 605549, 'speaker': 0}, {'word': 'interact,', 'start_time': 605629, 'end_time': 606472, 'speaker': 0}, {'word': 'better', 'start_time': 606814, 'end_time': 607115, 'speaker': 0}, {'word': 'their', 'start_time': 607135, 'end_time': 607597, 'speaker': 0}, {'word': 'mental', 'start_time': 607617, 'end_time': 607938, 'speaker': 0}, {'word': 'wellbeing.', 'start_time': 607958, 'end_time': 608320, 'speaker': 0}, {'word': 'Similar', 'start_time': 609621, 'end_time': 610045, 'speaker': 0}, {'word': 'to', 'start_time': 610085, 'end_time': 610287, 'speaker': 0}, {'word': 'the', 'start_time': 610327, 'end_time': 610448, 'speaker': 0}, {'word': 'herd', 'start_time': 610468, 'end_time': 610811, 'speaker': 0}, {'word': 'event', 'start_time': 611174, 'end_time': 611476, 'speaker': 0}, {'word': 'that', 'start_time': 611496, 'end_time': 611617, 'speaker': 0}, {'word': 'we', 'start_time': 611637, 'end_time': 611738, 'speaker': 0}, {'word': 'did.', 'start_time': 611758, 'end_time': 611879, 'speaker': 0}, {'word': 'Yeah.', 'start_time': 612900, 'end_time': 613060, 'speaker': 0}, {'word': 'We', 'start_time': 616242, 'end_time': 616544, 'speaker': 0}, {'word': 'are', 'start_time': 616645, 'end_time': 616765, 'speaker': 0}, {'word': 'doing', 'start_time': 617128, 'end_time': 617410, 'speaker': 0}, {'word': 'one', 'start_time': 617510, 'end_time': 617631, 'speaker': 0}, {'word': 'art', 'start_time': 617893, 'end_time': 617974, 'speaker': 0}, {'word': 'jamming', 'start_time': 618014, 'end_time': 618356, 'speaker': 0}, {'word': 'with', 'start_time': 618396, 'end_time': 618517, 'speaker': 0}, {'word': 'cats.', 'start_time': 618557, 'end_time': 618779, 'speaker': 0}, {'word': 'Yeah.', 'start_time': 620816, 'end_time': 620900, 'speaker': 0}, {'word': 'Soon.', 'start_time': 622160, 'end_time': 622284, 'speaker': 0}, {'word': 'When', 'start_time': 623402, 'end_time': 623627, 'speaker': 0}, {'word': 'we', 'start_time': 623668, 'end_time': 623812, 'speaker': 0}, {'word': 'have', 'start_time': 623832, 'end_time': 623935, 'speaker': 0}, {'word': 'time.', 'start_time': 623976, 'end_time': 624119, 'speaker': 0}, {'word': 'Yeah.', 'start_time': 625242, 'end_time': 625377, 'speaker': 0}, {'word': 'Okay,', 'start_time': 628026, 'end_time': 628292, 'speaker': 0}, {'word': 'good.', 'start_time': 628313, 'end_time': 628600, 'speaker': 0}, {'word': 'Hi,', 'start_time': 628760, 'end_time': 629063, 'speaker': 0}, {'word': 'nice', 'start_time': 629083, 'end_time': 629791, 'speaker': 0}, {'word': 'to', 'start_time': 629913, 'end_time': 630115, 'speaker': 0}, {'word': 'meet', 'start_time': 630176, 'end_time': 630358, 'speaker': 0}, {'word': 'you.', 'start_time': 630378, 'end_time': 630439, 'speaker': 0}, {'word': 'Hi,', 'start_time': 631502, 'end_time': 631644, 'speaker': 0}, {'word': 'sorry', 'start_time': 631847, 'end_time': 632050, 'speaker': 0}, {'word': 'to', 'start_time': 632091, 'end_time': 632193, 'speaker': 0}, {'word': 'interrupt.', 'start_time': 632274, 'end_time': 632599, 'speaker': 0}, {'word': 'Nice', 'start_time': 633041, 'end_time': 633485, 'speaker': 0}, {'word': 'to', 'start_time': 633526, 'end_time': 633707, 'speaker': 0}, {'word': 'meet', 'start_time': 633748, 'end_time': 633970, 'speaker': 0}, {'word': 'you.', 'start_time': 634010, 'end_time': 634111, 'speaker': 0}, {'word': 'I', 'start_time': 635485, 'end_time': 635545, 'speaker': 0}, {'word': 'heard', 'start_time': 635586, 'end_time': 635828, 'speaker': 0}, {'word': 'about', 'start_time': 635889, 'end_time': 636192, 'speaker': 0}, {'word': 'the', 'start_time': 636212, 'end_time': 636273, 'speaker': 0}, {'word': 'project.', 'start_time': 636536, 'end_time': 636839, 'speaker': 0}, {'word': 'Okay,', 'start_time': 637221, 'end_time': 637504, 'speaker': 0}, {'word': 'then', 'start_time': 637787, 'end_time': 637969, 'speaker': 0}, {'word': 'this', 'start_time': 638029, 'end_time': 638716, 'speaker': 0}, {'word': 'is', 'start_time': 638797, 'end_time': 638898, 'speaker': 0}, {'word': 'mine.', 'start_time': 638918, 'end_time': 639080, 'speaker': 0}]
 
-    for wrd_dict in word_speaker_mapping:
-        wrd, spk = wrd_dict["word"], wrd_dict["speaker"]
-        s, e = wrd_dict["start_time"], wrd_dict["end_time"]
-        if spk != prev_spk:
-            snts.append(snt)
-            snt = {
-                "speaker": f"Speaker {spk}",
-                "start_time": s,
-                "end_time": e,
-                "text": "",
-            }
-        else:
-            snt["end_time"] = e
-        snt["text"] += wrd + " "
-        prev_spk = spk
-
-    snts.append(snt)
-    return snts
-
-def write_srt(transcript, file):
-    """
-    Write a transcript to a file in SRT format.
-
-    """
-    for i, segment in enumerate(transcript, start=1):
-        # write srt lines
-        print(
-            f"{i}\n"
-            f"{format_timestamp(segment['start_time'], always_include_hours=True, decimal_marker=',')} --> "
-            f"{format_timestamp(segment['end_time'], always_include_hours=True, decimal_marker=',')}\n"
-            f"{segment['speaker']}: {segment['text'].strip().replace('-->', '->')}\n",
-            file=file,
-            flush=True,
-        )
-
-def format_timestamp(milliseconds, always_include_hours=False, decimal_marker='.'):
-    total_seconds = milliseconds / 1000
-    hours = int(total_seconds // 3600)
-    minutes = int((total_seconds % 3600) // 60)
-    seconds = int(total_seconds % 60)
-    milliseconds = int((total_seconds * 1000) % 1000)
-
-    hours_marker = f"{hours:02d}:" if always_include_hours or hours > 0 else ""
-    return f"{hours_marker}{minutes:02d}:{seconds:02d}{decimal_marker}{milliseconds:03d}"
-
-if speaker_duration is not None: # then split periods where a single speaker talks into chunks
-    speaker_duration_ms = speaker_duration*1000
-    split_segments = split_word_segments_by_duration(wsm, speaker_duration_ms)
-
-    for segment in split_segments:
-        start_time = segment['start_time']
-        end_time = segment['end_time']
-
-        # Find the correct speaker from speaker_ts
-        for speaker_time in speaker_ts:
-            if start_time >= speaker_time[0] and end_time <= speaker_time[1]:
-                segment['speaker'] = f"Speaker {speaker_time[2]}"
-                break
-
-    with open(f"{test_name[:-4]}.txt", "w", encoding="utf-8-sig") as f:
-        get_speaker_aware_transcript(split_segments, f)
-
-    with open(f"{test_name[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
-        write_srt(split_segments, srt)
-
-ssm = get_sentences_speaker_mapping(wsm, speaker_ts)
-
-with open(f"{test_name[:-4]}_no_split.txt", "w", encoding="utf-8-sig") as f:
-    get_speaker_aware_transcript(ssm, f)
-
-with open(f"{test_name[:-4]}_no_split.srt", "w", encoding="utf-8-sig") as srt:
-    write_srt(ssm, srt)
+srt = "test.srt"
+with open(srt, "w", encoding="utf-8-sig") as s:
+    write_movie_srt(wsm, s)
