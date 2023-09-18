@@ -332,6 +332,56 @@ def write_srt(transcript, file):
             flush=True,
         )
 
+def write_movie_srt(wsm, srt_file):
+    max_words_per_entry = 12  # Maximum number of words per subtitle entry
+    current_words = []  # Words for the current subtitle entry
+    current_start_time = None  # Start time for the current subtitle entry
+    current_speaker = None  # Speaker for the current subtitle entry
+    entry_count = 1  # Subtitle entry count
+    last_end_time = 0  # Last end time to prevent overlaps
+
+    for entry in wsm:
+        word = entry['word']
+        start_time = entry['start_time']
+        end_time = entry['end_time']
+        speaker = entry['speaker']
+
+        # Prevent overlap by adjusting the start_time
+        if start_time < last_end_time:
+            start_time = last_end_time
+
+        if current_start_time is None:
+            current_start_time = start_time
+
+        if current_speaker is None:
+            current_speaker = speaker
+
+        # Create a new subtitle entry if the word limit is reached or the speaker changes
+        if len(current_words) >= max_words_per_entry or current_speaker != speaker:
+            srt_file.write(f"{entry_count}\n")
+            srt_file.write(f"{format_time(current_start_time)} --> {format_time(end_time)}\n")
+            srt_file.write(f"Speaker {current_speaker}: {' '.join(current_words)}\n\n")
+            entry_count += 1
+            current_words = []
+            current_start_time = start_time
+            current_speaker = speaker
+            last_end_time = end_time  # Update the last end time
+
+        current_words.append(word)
+
+    # Write the last subtitle entry
+    if current_words:
+        srt_file.write(f"{entry_count}\n")
+        srt_file.write(f"{format_time(current_start_time)} --> {format_time(end_time)}\n")
+        srt_file.write(f"Speaker {current_speaker}: {' '.join(current_words)}\n")
+
+
+# Helper function to format time in SRT format
+def format_time(time_in_milliseconds):
+    seconds, milliseconds = divmod(time_in_milliseconds, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
 
 def cleanup(path: str):
     """path could either be relative or absolute."""
