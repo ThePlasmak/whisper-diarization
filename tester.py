@@ -1,5 +1,5 @@
 def write_movie_srt(wsm, srt_file):
-    max_words_per_entry = 12  # Maximum number of words per subtitle entry
+    max_words_per_entry = 14  # Maximum number of words per subtitle entry
     current_words = []  # Words for the current subtitle entry
     current_start_time = None  # Start time for the current subtitle entry
     current_speaker = None  # Speaker for the current subtitle entry
@@ -25,20 +25,20 @@ def write_movie_srt(wsm, srt_file):
         # Create a new subtitle entry if the word limit is reached or the speaker changes
         if len(current_words) >= max_words_per_entry or current_speaker != speaker:
             srt_file.write(f"{entry_count}\n")
-            srt_file.write(f"{format_time(current_start_time)} --> {format_time(end_time)}\n")
+            srt_file.write(f"{format_time(current_start_time)} --> {format_time(last_end_time)}\n")
             srt_file.write(f"Speaker {current_speaker}: {' '.join(current_words)}\n\n")
             entry_count += 1
             current_words = []
             current_start_time = start_time
             current_speaker = speaker
-            last_end_time = end_time  # Update the last end time
 
         current_words.append(word)
+        last_end_time = end_time  # Update the last end time
 
     # Write the last subtitle entry
     if current_words:
         srt_file.write(f"{entry_count}\n")
-        srt_file.write(f"{format_time(current_start_time)} --> {format_time(end_time)}\n")
+        srt_file.write(f"{format_time(current_start_time)} --> {format_time(last_end_time)}\n")
         srt_file.write(f"Speaker {current_speaker}: {' '.join(current_words)}\n")
 
 
