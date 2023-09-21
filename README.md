@@ -22,6 +22,7 @@
 
 </p>
 
+(This is a fork made by me (ThePlasmak). I mostly added new parser options. Please check the `help` variables in each `parser` to learn how they work!)
 
 Speaker Diarization pipeline based on OpenAI Whisper
 I'd like to thank [@m-bain](https://github.com/m-bain) for Wav2Vec2 forced alignment, [@mu4farooqi](https://github.com/mu4farooqi) for punctuation realignment algorithm
