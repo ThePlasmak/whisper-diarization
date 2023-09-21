@@ -75,7 +75,7 @@ parser.add_argument(
     dest="domain_type",
     type=str,
     default="telephonic", # Can be "general", "meeting" or "telephonic" based on domain type of the audio file (see https://github.com/NVIDIA/NeMo/tree/main/examples/speaker_tasks/diarization/conf/inference)
-    help="Enter the desired domain type."
+    help="Enter the desired domain type. (Note: This option is broken at the moment.)"
     "general: optimized to show balanced performances on various types of domains."
     "meeting: suitable for 3~5 speakers participating in a meeting and may not show the best performance on other types of dialogues."
     "telephonic: suitable for telephone recordings involving 2~8 speakers in a session and may not show the best performance on the other types of acoustic conditions or dialogues.",
