@@ -286,7 +286,7 @@ else: # no splitting
     with open(f"{audio[:-4]}.srt", "w", encoding="utf-8-sig") as srt:
         write_srt(ssm, srt)
 
-with open(f"{audio[:-4]}_movie_like.srt", "w", encoding="utf-8-sig") as srt:
+with open(f"{audio[:-4]}_movie-like.srt", "w", encoding="utf-8-sig") as srt:
     write_movie_srt(wsm, srt)
 
 with open(f"{audio[:-4]}.txt", "w+", encoding="utf-8-sig") as f:
